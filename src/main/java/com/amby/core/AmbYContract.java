@@ -1,18 +1,17 @@
-package com.axlabs.boilerplate;
+package com.amby.core;
 
 import io.neow3j.devpack.Hash160;
 import io.neow3j.devpack.Storage;
+import static io.neow3j.devpack.Storage.getReadOnlyContext;
+import static io.neow3j.devpack.Storage.getStorageContext;
+import static io.neow3j.devpack.StringLiteralHelper.addressToScriptHash;
 import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
 
-import static io.neow3j.devpack.Storage.getReadOnlyContext;
-import static io.neow3j.devpack.Storage.getStorageContext;
-import static io.neow3j.devpack.StringLiteralHelper.addressToScriptHash;
-
 @DisplayName("HelloWorld")
 @ManifestExtra(key = "author", value = "Your Name")
-public class HelloWorldSmartContract {
+public class AmbYContract {
 
     static final byte[] ownerKey = new byte[]{0x00};
 

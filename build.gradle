@@ -3,7 +3,7 @@ plugins {
     id 'io.neow3j.gradle-plugin' version '3.24.0'
 }
 
-group 'com.axlabs'
+group 'com.amby'
 version '1.0-SNAPSHOT'
 
 // The neow3j compiler only supports Java 8.
@@ -38,5 +38,5 @@ tasks.withType(Test) {
 }
 
 neow3jCompiler {
-    className = "com.axlabs.boilerplate.HelloWorldSmartContract"
+    className = "com.amby.core.AmbYContract"
 }
