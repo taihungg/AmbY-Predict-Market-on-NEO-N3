@@ -235,11 +235,11 @@ public class AmbYContract {
 
         int pointAdded = calculatePoint(startTime, endTime, currentTime, amount);
 
-        int totalPoint = ((amount == 1) ? total_yes_points.get(marketId).toInt() : total_no_points.get(marketId).toInt()) + pointAdded;
+        int totalPoint = ((outcome == 1) ? total_yes_points.get(marketId).toInt() : total_no_points.get(marketId).toInt()) + pointAdded;
 
-        int totalPool = ((amount == 1) ? m_poolYes.get(marketId).toInt() : m_poolNo.get(marketId).toInt()) + amount;
+        int totalPool = ((outcome == 1) ? m_poolNo.get(marketId).toInt() : m_poolYes.get(marketId).toInt());
         
-        return (totalPool * pointAdded) / totalPoint;
+        return (totalPool * pointAdded) / totalPoint + amount;
     }
 
     @Safe
