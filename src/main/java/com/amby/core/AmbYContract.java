@@ -159,13 +159,13 @@ public class AmbYContract {
         } else{
             user_points.put(keyPoint, pointAdded);
         }
-        
+
         if(outcome == 1){
             int currentYesPoint = total_yes_points.get(marketId).toInt();
             total_yes_points.put(marketId, currentYesPoint + pointAdded);
         } else{
             int currentNoPoint = total_no_points.get(marketId).toInt();
-            total_yes_points.put(marketId, currentNoPoint + pointAdded);
+            total_no_points.put(marketId, currentNoPoint + pointAdded);
         }
 
         onBetPlaced.fire(from, marketId, outcome, amount);
@@ -187,5 +187,45 @@ public class AmbYContract {
 
     private static int ceilDiv(int a, int b) {
         return (a + b - 1) / b;
+    }
+
+    @Safe
+    public static int viewTvl(int marketId){
+        return m_poolYes.get(marketId).toInt() + m_poolNo.get(marketId).toInt();
+    }
+
+    @Safe
+    public static int totalYesPoint(int marketId){
+        return total_yes_points.get(marketId).toInt();
+    }
+
+    @Safe
+    public static int totalNoPoint(int marketId){
+        return total_no_points.get(marketId).toInt();
+    }
+
+    @Safe
+    public static int potentialReward(int marketId, int outcome, int amount){
+        int currentTime = Runtime.getTime();
+        int startTime = m_start_time.get(marketId).toInt();
+        int endTime = m_end_time.get(marketId).toInt();
+
+        int pointAdded = calculatePoint(startTime, endTime, currentTime, amount);
+
+        int totalPoint = ((amount == 1) ? total_yes_points.get(marketId).toInt() : total_no_points.get(marketId).toInt()) + pointAdded;
+
+        int totalPool = ((amount == 1) ? m_poolYes.get(marketId).toInt() : m_poolNo.get(marketId).toInt()) + amount;
+        
+        return (totalPool * pointAdded) / totalPoint;
+    }
+
+    @Safe
+    public static int startTime(int marketId){
+        return m_start_time.get(marketId).toInt();
+    }
+
+    @Safe
+    public static int endTime(int marketId){
+        return m_end_time.get(marketId).toInt();
     }
 }
