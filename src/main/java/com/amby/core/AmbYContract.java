@@ -1,6 +1,9 @@
 package com.amby.core;
 
+import io.neow3j.devpack.ByteString;
 import io.neow3j.devpack.Hash160;
+import static io.neow3j.devpack.Helper.abort;
+import io.neow3j.devpack.List;
 import io.neow3j.devpack.Runtime;
 import io.neow3j.devpack.Storage;
 import io.neow3j.devpack.StorageContext;
@@ -10,7 +13,10 @@ import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
 import io.neow3j.devpack.annotations.Permission;
+import io.neow3j.devpack.annotations.Safe;
+import io.neow3j.devpack.contracts.StdLib;
 import io.neow3j.devpack.events.Event1Arg;
+import io.neow3j.devpack.events.Event3Args;
 
 @DisplayName("AmbYThePredictMarket")
 @ManifestExtra(key = "author", value = "BrianNg")
@@ -62,4 +68,43 @@ public class AmbYContract {
     }
 
     static Event1Arg<Hash160> onOwnerSet;
+    static Event3Args<Integer, String, Integer> onMarketCreated;
+
+    /**
+     * TẠO THỊ TRƯỜNG MỚI
+     * @param title Tiêu đề câu hỏi (VD: "BTC > 100k?")
+     * @param description Mô tả sự kiện
+     * @param endTime Thời gian kết thúc (Timestamp ms)
+     */
+    public static void createMarket(String title, String description, int endTime) {
+        int startTime = Runtime.getTime();
+        if (endTime <= startTime) abort("Invalid end time!");
+
+        int id = getCount() + 1;
+        Storage.put(ctx, KEY_MARKET_COUNT, id);
+
+        List<Object> info = new List<>();
+        info.add(title);
+        info.add(description);
+        info.add(((Transaction) Runtime.getScriptContainer()).sender);
+        ByteString serializedInfo = new StdLib().serialize(info);
+        m_info.put(id, serializedInfo);
+
+        m__start_time.put(id, startTime);
+        m__end_time.put(id, endTime);
+
+        m_poolYes.put(id, 0);
+        m_poolNo.put(id, 0);
+
+        m_status.put(id, 0);
+
+        onMarketCreated.fire(id, title, endTime);
+    }
+
+    // HELPER FUNCTION
+    @Safe
+    public static int getCount() {
+        ByteString v = Storage.get(ctx, KEY_MARKET_COUNT);
+        return (v == null) ? 0 : v.toInt();
+    }
 }
