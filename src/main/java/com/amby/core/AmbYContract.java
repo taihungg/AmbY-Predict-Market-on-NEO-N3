@@ -20,6 +20,7 @@ import io.neow3j.devpack.annotations.Safe;
 import io.neow3j.devpack.contracts.GasToken;
 import io.neow3j.devpack.contracts.StdLib;
 import io.neow3j.devpack.events.Event1Arg;
+import io.neow3j.devpack.events.Event2Args;
 import io.neow3j.devpack.events.Event3Args;
 import io.neow3j.devpack.events.Event4Args;
 
@@ -80,6 +81,7 @@ public class AmbYContract {
     static Event1Arg<Hash160> onOwnerSet;
     static Event3Args<Integer, String, Integer> onMarketCreated;
     static Event4Args<Hash160, Integer, Integer, Integer> onBetPlaced;
+    static Event2Args<Integer, Integer> onMarketResolved;
 
     /**
      * TẠO THỊ TRƯỜNG MỚI
@@ -169,6 +171,27 @@ public class AmbYContract {
         }
 
         onBetPlaced.fire(from, marketId, outcome, amount);
+    }
+
+    /**
+     * CHỐT KẾT QUẢ (Chỉ Owner được gọi)
+     * @param winnerOutcome 1 = YES thắng, 2 = NO thắng
+     */
+    public static void resolveMarket(int marketId, int winnerOutcome) {
+        Hash160 owner = new Hash160(Storage.get(ctx, KEY_OWNER));
+        if (!Runtime.checkWitness(owner)) abort("Only owner!");
+
+        int currentTime = Runtime.getTime();
+        int endTime = m_end_time.get(marketId).toInt();
+        if (currentTime < endTime) abort("Event has not ended!");
+        if (winnerOutcome != 1 && winnerOutcome != 2) abort("Not a result!");
+        
+        int status = m_status.get(marketId).toInt();
+        if (status != 0) abort("Event has resolved before!");
+
+        m_status.put(marketId, winnerOutcome);
+
+        onMarketResolved.fire(marketId, winnerOutcome);
     }
 
     // HELPER FUNCTION
