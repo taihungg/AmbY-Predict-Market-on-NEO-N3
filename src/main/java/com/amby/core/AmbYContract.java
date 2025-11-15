@@ -15,6 +15,8 @@ import io.neow3j.devpack.events.Event1Arg;
 @ManifestExtra(key = "author", value = "BrianNg")
 @Permission(contract = "*")
 public class AmbYContract {
+    static final StorageContext ctx = Storage.getStorageContext();
+
     static final String KEY_OWNER = "owner";
     static final String KEY_MARKET_COUNT = "count";
     static final String KEY_PAUSED = "paused";
@@ -22,8 +24,6 @@ public class AmbYContract {
     @OnDeployment
     public static void deploy(Object data, boolean update) {
         if (update) return;
-
-        StorageContext ctx = Storage.getStorageContext();
 
         Transaction tx = (Transaction) Runtime.getScriptContainer();
 
