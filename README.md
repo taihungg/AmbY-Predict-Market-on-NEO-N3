@@ -18,6 +18,8 @@
 * **📊 Parimutuel Model:** Liquidity is consolidated into a single shared pool per market. Winners split the total pool pro-rata based on their accumulated Points.
 * **⛽ Gas-Optimized Architecture:** Utilizes a **Column-Based Storage** design pattern to minimize storage fees, ensuring the contract remains scalable and cheap to use even with high transaction volumes.
 * **🛡️ Atomic Transactions:** Betting logic is executed inside the `OnNEP17Payment` hook, ensuring that payment and bet recording happen atomically. Invalid bets (e.g., after deadline) are automatically rejected and refunded.
+* **🤖 SpoonOS AI Agent:** Automatically discovers trending Web3 events and creates on-chain prediction markets in real-time.
+
 
 ---
 
@@ -65,7 +67,7 @@ Used to generate Web3 event lists in structured JSON format.
 SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
 
 
-#### 🚀 End-to-End Flow (Mermaid Diagram)
+#### 🚀 End-to-End Flow 
 ```text
 +-----------------------------+
 | Admin/User Input Keyword   |
