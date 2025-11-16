@@ -1,13 +1,31 @@
-import React, { useState } from 'react'
-import QuestCard from './components/QuestCard'
-import WalletConnect from './components/WalletConnect'
+import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import MarketList from './pages/MarketList'
+import MarketDetail from './pages/MarketDetail'
 
 export default function App(){
-  const [connected, setConnected] = useState(false)
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
+
+  const handleDarkModeChange = (isDark: boolean) => {
+    setDarkMode(isDark);
+    localStorage.setItem("darkMode", JSON.stringify(isDark));
+  };
 
   return (
-    <div className="min-h-screen">
-      <QuestCard connected={connected} onConnect={setConnected} />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route 
+          path="/" 
+          element={<MarketList darkMode={darkMode} onDarkModeChange={handleDarkModeChange} />} 
+        />
+        <Route 
+          path="/market/:id" 
+          element={<MarketDetail darkMode={darkMode} onDarkModeChange={handleDarkModeChange} />} 
+        />
+      </Routes>
+    </BrowserRouter>
   )
 }
