@@ -66,7 +66,7 @@ SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
 
 
 #### 🚀 End-to-End Flow (Mermaid Diagram)
-
+```text
 +-----------------------------+
 | Admin/User Input Keyword   |
 |   (e.g., Bitcoin, Solana)  |
@@ -110,7 +110,7 @@ SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
 +-----------------------------+
 | Market Created On-Chain     |
 +-----------------------------+
-
+```
 ---
 
 ## 🚀 Getting Started
