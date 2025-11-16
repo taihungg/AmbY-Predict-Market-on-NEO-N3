@@ -17,7 +17,7 @@ export async function voteOnQuest(
 ): Promise<string> {
   try {
     const userScriptHash = await addressToScriptHash(neolineN3, userAddress);
-    const intOutcome = outcome === "Yes" ? 1 : 0;
+    const intOutcome = outcome === "Yes" ? 1 : 2;
     const params: InvokeParams = {
       scriptHash: contractScriptHash,
       operation: "onNEP17Payment",

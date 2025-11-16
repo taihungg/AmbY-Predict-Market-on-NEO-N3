@@ -23,8 +23,38 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
   const [noAmount, setNoAmount] = useState<string>("0");
   const [isLoadingAmounts, setIsLoadingAmounts] = useState<boolean>(false);
   const [isVoting, setIsVoting] = useState<boolean>(false);
+  const [neolineN3Instance, setNeolineN3Instance] = useState<any>(null);
 
   const marketId = 1;
+
+  // Initialize NeoLine once on component mount
+  useEffect(() => {
+    const initializeNeoLine = async () => {
+      try {
+        const NEOLineN3 = (window as any).NEOLineN3;
+        if (NEOLineN3) {
+          const instance = new NEOLineN3.Init();
+          setNeolineN3Instance(instance);
+        }
+      } catch (error) {
+        console.error("Failed to initialize NeoLine:", error);
+      }
+    };
+
+    // Check if already loaded
+    if ((window as any).NEOLineN3) {
+      initializeNeoLine();
+    } else {
+      // Listen for the ready event
+      const handleReady = () => {
+        initializeNeoLine();
+      };
+      window.addEventListener("NEOLine.N3.EVENT.READY", handleReady);
+      return () => {
+        window.removeEventListener("NEOLine.N3.EVENT.READY", handleReady);
+      };
+    }
+  }, []);
 
   const handleBalanceUpdate = (balance: string) => {
     // Format the balance for display
@@ -44,31 +74,24 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
 
   useEffect(() => {
     const fetchAmounts = async () => {
-      if (!connected) {
+      if (!connected || !neolineN3Instance) {
         setIsLoadingAmounts(false);
         return;
       }
 
       try {
         setIsLoadingAmounts(true);
-        const neolineN3 = (window as any).neoline;
 
-        if (!neolineN3) {
-          console.error("Neoline not available");
-          setIsLoadingAmounts(false);
-          return;
-        }
-
-        const userAddress = await neolineN3.getAccount();
+        const userAddress = await neolineN3Instance.getAccount();
 
         const yesPointResult = await getYesPoint(
-          neolineN3,
+          neolineN3Instance,
           CONTRACT_HASH,
           userAddress.address,
           marketId
         );
         const noPointResult = await getNoPoint(
-          neolineN3,
+          neolineN3Instance,
           CONTRACT_HASH,
           userAddress.address,
           marketId
@@ -90,7 +113,7 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
     };
 
     fetchAmounts();
-  }, [connected]);
+  }, [connected, neolineN3Instance]);
 
   const exceedsBalance = amount > getNumericBalance();
 
@@ -120,32 +143,29 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
       return;
     }
 
+    if (!neolineN3Instance) {
+      alert("NeoLine wallet not initialized");
+      return;
+    }
+
     try {
       setIsVoting(true);
-      const NEOLineN3 = (window as any).NEOLineN3;
-
-      if (!NEOLineN3) {
-        alert("NeoLine wallet not available");
-        return;
-      }
-
-      const neolineN3 = new NEOLineN3.Init();
-      const userAddress = await neolineN3.getAccount();
+      const userAddress = await neolineN3Instance.getAccount();
       
-      // const txid = await voteOnQuest(
-      //   neolineN3,
-      //   CONTRACT_HASH,
-      //   userAddress.address,
-      //   marketId,
-      //   selectedOutcome as "Yes" | "No",
-      //   amount.toString()
-      // );
-
-      const txid = await createMarket(
-        neolineN3,
+      const txid = await voteOnQuest(
+        neolineN3Instance,
         CONTRACT_HASH,
         userAddress.address,
+        marketId,
+        selectedOutcome as "Yes" | "No",
+        amount.toString()
       );
+
+      // const txid = await createMarket(
+      //   neolineN3Instance,
+      //   CONTRACT_HASH,
+      //   userAddress.address,
+      // );
 
       alert(`Vote successful! Transaction ID: ${txid}`);
       // Reset form

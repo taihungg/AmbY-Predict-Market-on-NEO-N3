@@ -87,7 +87,7 @@ export async function getPotentialReward(
       operation: "potentialReward",
       args: [
         ArgTypes.integer(marketId),
-        ArgTypes.integer(outcome === "Yes" ? 1 : 0),
+        ArgTypes.integer(outcome === "Yes" ? 1 : 2),
         ArgTypes.integer(amount),
       ],
       signers: [createSigner(userScriptHash)],
