@@ -67,19 +67,50 @@ SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
 
 #### 🚀 End-to-End Flow (Mermaid Diagram)
 
-```mermaid
-flowchart TD
++-----------------------------+
+| Admin/User Input Keyword   |
+|   (e.g., Bitcoin, Solana)  |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| GeminiEventSearchTool       |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Gemini LLM                  |
+| Generate JSON Event List    |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Agent Logic                 |
+| Parse + Select Markets      |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| CreateMarketTool            |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Neo N3 RPC                  |
+| JSON-RPC invokefunction     |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Smart Contract              |
+| createMarket()              |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Market Created On-Chain     |
++-----------------------------+
 
-    A[Admin/User Input Keyword\n(e.g., Bitcoin, Solana)] --> B[GeminiEventSearchTool]
-    B --> C[Gemini LLM\nGenerate JSON Event List]
-    C --> D[Agent Logic\nParse + Select Markets]
-    D --> E[CreateMarketTool]
-    E --> F[Neo N3 RPC\nJSON-RPC invokefunction]
-    F --> G[Smart Contract\ncreateMarket()]
-    G --> H[Market Created On-Chain]
-
-
-```
 ---
 
 ## 🚀 Getting Started
