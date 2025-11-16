@@ -18,6 +18,8 @@
 * **📊 Parimutuel Model:** Liquidity is consolidated into a single shared pool per market. Winners split the total pool pro-rata based on their accumulated Points.
 * **⛽ Gas-Optimized Architecture:** Utilizes a **Column-Based Storage** design pattern to minimize storage fees, ensuring the contract remains scalable and cheap to use even with high transaction volumes.
 * **🛡️ Atomic Transactions:** Betting logic is executed inside the `OnNEP17Payment` hook, ensuring that payment and bet recording happen atomically. Invalid bets (e.g., after deadline) are automatically rejected and refunded.
+* **🤖 SpoonOS AI Agent:** Automatically discovers trending Web3 events and creates on-chain prediction markets in real-time.
+
 
 ---
 
@@ -43,6 +45,74 @@ $$
 
 * **Scenario:** A user betting in the first minute of a 24-hour market gets significantly higher leverage (up to 36x) compared to a user betting in the final minute (1x).
 
+### 3. SpoonOS Framework
+
+**SpoonOS** provides a modular, asynchronous, and production-ready framework for building AI + Web3 agents with clean abstractions.
+
+#### Core Components
+
+- **spoon_ai.tools.base.BaseTool** – defines plug-and-play custom tools.
+- **spoon_ai.chat.ChatBot** – unified interface for calling LLMs (Gemini, OpenAI, Anthropic).
+- **spoon_ai.schema.Message** – standardized multi-message memory object.
+- **spoon_ai.chat.Memory** – manages conversation state and context history.
+- **Asynchronous Engine (async/await)** – enables tools to run concurrently for maximum performance.
+
+#### 🤖 LLM Provider
+
+**Gemini 2.5 Pro**  
+Used to generate Web3 event lists in structured JSON format.
+
+#### 🔗 Blockchain Layer (Neo N3)
+
+SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
+
+
+#### 🚀 End-to-End Flow 
+```text
++-----------------------------+
+| Admin/User Input Keyword   |
+|   (e.g., Bitcoin, Solana)  |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| GeminiEventSearchTool       |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Gemini LLM                  |
+| Generate JSON Event List    |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Agent Logic                 |
+| Parse + Select Markets      |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| CreateMarketTool            |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Neo N3 RPC                  |
+| JSON-RPC invokefunction     |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Smart Contract              |
+| createMarket()              |
++-------------+---------------+
+              |
+              v
++-----------------------------+
+| Market Created On-Chain     |
++-----------------------------+
+```
 ---
 
 ## 🚀 Getting Started
@@ -53,6 +123,9 @@ Ensure you have the following installed:
 * **Docker Desktop** (For running Neo Express Private Net).
 * **Visual Studio Code** (With *Neo Blockchain Toolkit* extension).
 * **Gradle 7.x+**
+* **Python 3.10+** (Required for SpoonOS Framework)
+* **aiohttp** (Async HTTP client used by SpoonOS tools)
+* **pip install spoon-ai** (SpoonOS Python SDK for AI + Web3 integration)
 
 ### Installation
 
