@@ -1,1 +1,1 @@
-export const CONTRACT_ADDRESS = "";
+export const CONTRACT_HASH = "0x7f06191d4aa61e778224c40d998168be68448342";

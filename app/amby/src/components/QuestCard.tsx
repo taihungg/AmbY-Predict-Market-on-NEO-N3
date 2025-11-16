@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
+import { getYesPoint, getNoPoint } from "../handler/readContract";
+import { createMarket, voteOnQuest } from "../handler/writeContract";
+import { CONTRACT_HASH } from "../utils/address";
 
 type Props = {
   connected: boolean;
@@ -16,6 +19,12 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
     useState<boolean>(false);
   const [gasBalance, setGasBalance] = useState<string>("0");
   const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
+  const [yesAmount, setYesAmount] = useState<string>("0");
+  const [noAmount, setNoAmount] = useState<string>("0");
+  const [isLoadingAmounts, setIsLoadingAmounts] = useState<boolean>(false);
+  const [isVoting, setIsVoting] = useState<boolean>(false);
+
+  const marketId = 1;
 
   const handleBalanceUpdate = (balance: string) => {
     // Format the balance for display
@@ -33,11 +42,121 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
     return parseFloat(gasBalance.replace(/,/g, "")) || 0;
   };
 
+  useEffect(() => {
+    const fetchAmounts = async () => {
+      if (!connected) {
+        setIsLoadingAmounts(false);
+        return;
+      }
+
+      try {
+        setIsLoadingAmounts(true);
+        const neolineN3 = (window as any).neoline;
+
+        if (!neolineN3) {
+          console.error("Neoline not available");
+          setIsLoadingAmounts(false);
+          return;
+        }
+
+        const userAddress = await neolineN3.getAccount();
+
+        const yesPointResult = await getYesPoint(
+          neolineN3,
+          CONTRACT_HASH,
+          userAddress.address,
+          marketId
+        );
+        const noPointResult = await getNoPoint(
+          neolineN3,
+          CONTRACT_HASH,
+          userAddress.address,
+          marketId
+        );
+
+        if (yesPointResult && Array.isArray(yesPointResult) && yesPointResult.length > 0) {
+          setYesAmount(yesPointResult[0].value || "0");
+        }
+        if (noPointResult && Array.isArray(noPointResult) && noPointResult.length > 0) {
+          setNoAmount(noPointResult[0].value || "0");
+        }
+      } catch (error) {
+        console.error("Failed to fetch amounts:", error);
+        setYesAmount("0");
+        setNoAmount("0");
+      } finally {
+        setIsLoadingAmounts(false);
+      }
+    };
+
+    fetchAmounts();
+  }, [connected]);
+
   const exceedsBalance = amount > getNumericBalance();
 
   const handleDarkModeChange = (newValue: boolean) => {
     setIsDark(newValue);
     onDarkModeChange?.(newValue);
+  };
+
+  const handleVote = async () => {
+    if (!connected) {
+      alert("Please connect your wallet first");
+      return;
+    }
+
+    if (!selectedOutcome) {
+      alert("Please select an outcome (Yes or No)");
+      return;
+    }
+
+    if (amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    if (exceedsBalance) {
+      alert("Insufficient balance");
+      return;
+    }
+
+    try {
+      setIsVoting(true);
+      const NEOLineN3 = (window as any).NEOLineN3;
+
+      if (!NEOLineN3) {
+        alert("NeoLine wallet not available");
+        return;
+      }
+
+      const neolineN3 = new NEOLineN3.Init();
+      const userAddress = await neolineN3.getAccount();
+      
+      // const txid = await voteOnQuest(
+      //   neolineN3,
+      //   CONTRACT_HASH,
+      //   userAddress.address,
+      //   marketId,
+      //   selectedOutcome as "Yes" | "No",
+      //   amount.toString()
+      // );
+
+      const txid = await createMarket(
+        neolineN3,
+        CONTRACT_HASH,
+        userAddress.address,
+      );
+
+      alert(`Vote successful! Transaction ID: ${txid}`);
+      // Reset form
+      setSelectedOutcome("");
+      setAmount(1);
+    } catch (error) {
+      console.error("Vote failed:", error);
+      alert("Vote failed: " + (error instanceof Error ? error.message : "Unknown error"));
+    } finally {
+      setIsVoting(false);
+    }
   };
 
   return (
@@ -46,7 +165,14 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
         isDark ? "bg-black text-white" : "bg-gray-50 text-black"
       }`}
     >
-      <Header darkMode={isDark} onDarkModeChange={handleDarkModeChange} />
+      <Header 
+        darkMode={isDark} 
+        onDarkModeChange={handleDarkModeChange}
+        onBalanceUpdate={handleBalanceUpdate}
+        onLoadingChange={handleLoadingChange}
+        connected={connected}
+        onConnectionChange={onConnect}
+      />
 
       {/* Top Section */}
       <div
@@ -287,8 +413,16 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
               >
                 Potential rewards <span className="text-red-500">0 (+0%)</span>
               </div>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition">
-                Vote
+              <button 
+                onClick={handleVote}
+                disabled={isVoting}
+                className={`w-full font-semibold py-3 rounded-lg transition ${
+                  isVoting
+                    ? "bg-gray-600 text-white cursor-not-allowed opacity-50"
+                    : "bg-green-600 hover:bg-green-700 text-white"
+                }`}
+              >
+                {isVoting ? "Voting..." : "Vote"}
               </button>
             </div>
           </div>
@@ -309,7 +443,7 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
         >
           <span className="text-lg">1. Yes</span>
           <span className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium">
-            48.26% (343,638)
+            {isLoadingAmounts ? "Loading..." : `${yesAmount}`}
           </span>
         </div>
 
@@ -325,7 +459,7 @@ export default function QuestCard({ connected, onConnect, darkMode = false, onDa
         >
           <span className="text-lg">2. No</span>
           <span className="bg-green-500 text-white px-4 py-2 rounded-lg font-medium">
-            51.74% (368,354)
+            {isLoadingAmounts ? "Loading..." : `${noAmount}`}
           </span>
         </div>
       </div>

@@ -5,10 +5,20 @@ import WalletConnect from "./WalletConnect";
 type Props = {
   darkMode?: boolean;
   onDarkModeChange?: (isDark: boolean) => void;
+  onBalanceUpdate?: (balance: string) => void;
+  onLoadingChange?: (loading: boolean) => void;
+  connected?: boolean;
+  onConnectionChange?: (connected: boolean) => void;
 };
 
-export default function Header({ darkMode = false, onDarkModeChange }: Props) {
-  const [connected, setConnected] = useState(false);
+export default function Header({ 
+  darkMode = false, 
+  onDarkModeChange, 
+  onBalanceUpdate, 
+  onLoadingChange,
+  connected = false,
+  onConnectionChange
+}: Props) {
   const [isDark, setIsDark] = useState(darkMode);
   const navigate = useNavigate();
 
@@ -85,7 +95,14 @@ export default function Header({ darkMode = false, onDarkModeChange }: Props) {
             </>
           )}
         </button>
-        <WalletConnect connected={connected} onConnect={setConnected} />
+        <WalletConnect 
+          connected={connected} 
+          onConnect={(isConnected) => {
+            onConnectionChange?.(isConnected);
+          }}
+          onBalanceUpdate={onBalanceUpdate}
+          onLoadingChange={onLoadingChange}
+        />
       </div>
     </div>
   );

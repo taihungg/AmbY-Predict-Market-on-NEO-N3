@@ -8,16 +8,12 @@ import {
 
 export async function getTVL(
   neolineN3: any,
-  contractAddress: string,
+  contractScriptHash: string,
   userAddress: string,
   marketId: number
 ) {
   try {
     const userScriptHash = await addressToScriptHash(neolineN3, userAddress);
-    const contractScriptHash = await addressToScriptHash(
-      neolineN3,
-      contractAddress
-    );
     const params: InvokeReadParams = {
       scriptHash: contractScriptHash,
       operation: "viewTVL",
@@ -34,16 +30,12 @@ export async function getTVL(
 
 export async function getYesPoint(
   neolineN3: any,
-  contractAddress: string,
+  contractScriptHash: string,
   userAddress: string,
   marketId: number
 ) {
   try {
     const userScriptHash = await addressToScriptHash(neolineN3, userAddress);
-    const contractScriptHash = await addressToScriptHash(
-      neolineN3,
-      contractAddress
-    );
     const params: InvokeReadParams = {
       scriptHash: contractScriptHash,
       operation: "totalYesPoint",
@@ -60,16 +52,12 @@ export async function getYesPoint(
 
 export async function getNoPoint(
   neolineN3: any,
-  contractAddress: string,
+  contractScriptHash: string,
   userAddress: string,
   marketId: number
 ) {
   try {
     const userScriptHash = await addressToScriptHash(neolineN3, userAddress);
-    const contractScriptHash = await addressToScriptHash(
-      neolineN3,
-      contractAddress
-    );
     const params: InvokeReadParams = {
       scriptHash: contractScriptHash,
       operation: "totalNoPoint",
@@ -86,7 +74,7 @@ export async function getNoPoint(
 
 export async function getPotentialReward(
   neolineN3: any,
-  contractAddress: string,
+  contractScriptHash: string,
   userAddress: string,
   marketId: number,
   outcome: "Yes" | "No",
@@ -94,10 +82,6 @@ export async function getPotentialReward(
 ) {
   try {
     const userScriptHash = await addressToScriptHash(neolineN3, userAddress);
-    const contractScriptHash = await addressToScriptHash(
-      neolineN3,
-      contractAddress
-    );
     const params: InvokeReadParams = {
       scriptHash: contractScriptHash,
       operation: "potentialReward",
