@@ -64,9 +64,8 @@ Used to generate Web3 event lists in structured JSON format.
 
 SpoonOS interacts with the **Neo N3 RPC layer** using JSON-RPC 2.0.
 
----
 
-## 🚀 End-to-End Flow (Mermaid Diagram)
+#### 🚀 End-to-End Flow (Mermaid Diagram)
 
 ```mermaid
 flowchart TD
@@ -78,8 +77,6 @@ flowchart TD
     E --> F[Neo N3 RPC\nJSON-RPC invokefunction]
     F --> G[Smart Contract\ncreateMarket()]
     G --> H[Market Created On-Chain]
-```
-
 ---
 
 ## 🚀 Getting Started
